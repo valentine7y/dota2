@@ -1,4 +1,12 @@
-nbproject/*
+.buildpath
+.idea
+.project
+.settings
+.DS_Store
+.nbproject
+nbproject
+cache/*
+.dropbox
 
 # OS generated files #
 ######################
