@@ -1,7 +1,5 @@
 <?php
 
-//72F82C4B0CBCC1704CDD2130E685E767
-
 class Dota2_API
 {
     protected $_apiKey;
