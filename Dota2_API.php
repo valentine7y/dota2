@@ -10,10 +10,6 @@ class Dota2_API
     const API_URL_ITEMS_DATA = 'http://localhost/dota2/json/items_data.json';
     
     const API_URL_HEROES = 'https://api.steampowered.com/IEconDOTA2_570/GetHeroes/v0001/';
-    
-    /**
-     * &l its a language: potuguese, english
-     */
     const API_URL_HEROES_DATA = 'http://www.dota2.com/jsfeed/heropickerdata?v=170666872723459802&l=portuguese';
     
     const URL_IMAGE_ITEMS = 'http://media.steampowered.com/apps/dota2/images/items/%NAME%_lg.png';
@@ -51,6 +47,12 @@ class Dota2_API
             throw new Exception_Dota2_API('not is Object');
         
         return $obj;
+    }
+    
+    public function download($url, $pathSafe)
+    {
+        $content = file_get_contents($url);
+        return file_put_contents($pathSafe, $content);
     }
     
     public function getHeroes($id = null)
@@ -115,7 +117,49 @@ class Dota2_API
             $item->data = isset($obj_lore->$name) ? $obj_lore->$name : false;
         }
         
-        return $id ? $item[0] : $items;
+        return $id ? $items[0] : $items;
+    }
+    
+    public function downloadHeroesImages($pathSafe = 'images/heroes/')
+    {
+        if(!file_exists($pathSafe))
+            mkdir($pathSafe);
+        
+        $items = $this->getHeroes();
+        
+        $erros = array();
+        
+        foreach($items as $item)
+        {
+            $pathInfo = pathinfo($item->image);
+            $dowloaded = $this->download($item->image, $pathSafe . $pathInfo['basename']);
+            
+            if(!file_exists($item->image) || !$dowloaded)
+                $erros[] = $item->image;
+        }
+        
+        return $erros ? $erros : true;
+    }
+    
+    public function downloadItemsImages($pathSafe = 'images/items/')
+    {
+        if(!file_exists($pathSafe))
+            mkdir($pathSafe);
+        
+        $items = $this->getItems();
+        
+        $erros = array();
+        
+        foreach($items as $item)
+        {
+            $pathInfo = pathinfo($item->image);
+            $dowloaded = $this->download($item->image, $pathSafe . $pathInfo['basename']);
+            
+            if(!file_exists($item->image) || !$dowloaded)
+                $erros[] = $item->image;
+        }
+        
+        return $erros ? $erros : true;
     }
 }
 
