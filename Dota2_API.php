@@ -123,7 +123,7 @@ class Dota2_API
     public function downloadHeroesImages($pathSafe = 'images/heroes/')
     {
         if(!file_exists($pathSafe))
-            mkdir($pathSafe);
+            mkdir($pathSafe, 0777, true);
         
         $items = $this->getHeroes();
         
@@ -144,7 +144,7 @@ class Dota2_API
     public function downloadItemsImages($pathSafe = 'images/items/')
     {
         if(!file_exists($pathSafe))
-            mkdir($pathSafe);
+            mkdir($pathSafe, 0777, true);
         
         $items = $this->getItems();
         
