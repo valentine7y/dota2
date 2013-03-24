@@ -2,9 +2,9 @@
 
 require_once 'Dota2_API.php';
 
-$api = new Dota2_API('72F82C4B0CBCC1704CDD2130E685E767');
+$api = new Dota2_API('<YOUR_API_KEY_OF_STEAM>');
 
 //Dota2_API::dump($api->getHeroes(), false);
 //Dota2_API::dump($api->getItems(), false);
-Dota2_API::dump($api->downloadHeroesImages(), false);
+//Dota2_API::dump($api->downloadHeroesImages(), false);
 //Dota2_API::dump($api->downloadItemsImages(), false);
