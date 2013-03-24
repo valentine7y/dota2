@@ -142,7 +142,7 @@ class Dota2_API
         foreach($items as $item)
         {
             $pathInfo = pathinfo($item->image);
-            $downloadedFiles[$item->image] = $this->download($item->image, $pathSafe . $pathInfo['basename']);
+            $downloadedFiles[$pathInfo['basename']] = $this->download($item->image, $pathSafe . $pathInfo['basename']);
         }
         
         return $downloadedFiles;
