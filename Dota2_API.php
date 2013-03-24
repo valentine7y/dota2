@@ -51,6 +51,10 @@ class Dota2_API
     
     public function download($url, $pathSafe)
     {
+        $headers = @get_headers($url);
+        if(strpos(strtolower($headers[0]), 'not found') !== false)
+            return false;
+        
         $content = file_get_contents($url);
         return file_put_contents($pathSafe, $content);
     }
@@ -127,18 +131,15 @@ class Dota2_API
         
         $items = $this->getHeroes();
         
-        $erros = array();
+        $downloadedFiles = array();
         
         foreach($items as $item)
         {
             $pathInfo = pathinfo($item->image);
-            $dowloaded = $this->download($item->image, $pathSafe . $pathInfo['basename']);
-            
-            if(!file_exists($item->image) || !$dowloaded)
-                $erros[] = $item->image;
+            $downloadedFiles[$item->image] = $this->download($item->image, $pathSafe . $pathInfo['basename']);
         }
         
-        return $erros ? $erros : true;
+        return $downloadedFiles;
     }
     
     public function downloadItemsImages($pathSafe = 'images/items/')
@@ -148,18 +149,15 @@ class Dota2_API
         
         $items = $this->getItems();
         
-        $erros = array();
+        $downloadedFiles = array();
         
         foreach($items as $item)
         {
             $pathInfo = pathinfo($item->image);
-            $dowloaded = $this->download($item->image, $pathSafe . $pathInfo['basename']);
-            
-            if(!file_exists($item->image) || !$dowloaded)
-                $erros[] = $item->image;
+            $downloadedFiles[$item->image] = $this->download($item->image, $pathSafe . $pathInfo['basename']);
         }
         
-        return $erros ? $erros : true;
+        return $downloadedFiles;
     }
 }
 
