@@ -6,12 +6,18 @@ class Dota2_API
     
     const HEROES_NAME_PREFIX = 'npc_dota_hero_';
     
+    /**
+     * DO NOT FORGET TO CHANGE THESE PATH ACCORDING TO YOUR ENVIRONMENT 
+     */
     const API_URL_ITEMS = 'http://localhost/dota2/json/items.json';
     const API_URL_ITEMS_DATA = 'http://localhost/dota2/json/items_data.json';
     
     const API_URL_HEROES = 'https://api.steampowered.com/IEconDOTA2_570/GetHeroes/v0001/';
     const API_URL_HEROES_DATA = 'http://www.dota2.com/jsfeed/heropickerdata?v=170666872723459802&l=portuguese';
     
+    /**
+     * CONVENTION OF THE URLS OF THE IMAGES ON THE SITE DOTA2.COM 
+     */
     const URL_IMAGE_ITEMS = 'http://media.steampowered.com/apps/dota2/images/items/%NAME%_lg.png';
     const URL_IMAGE_HEROES = 'http://media.steampowered.com/apps/dota2/images/heroes/%NAME%_full.png';
     
