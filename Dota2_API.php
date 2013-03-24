@@ -130,12 +130,12 @@ class Dota2_API
         return $id ? $items[0] : $items;
     }
     
-    public function downloadHeroesImages($pathSafe = 'images/heroes/')
+    protected function downloadMedias($store, $pathSafe)
     {
         if(!file_exists($pathSafe))
             mkdir($pathSafe, 0777, true);
         
-        $items = $this->getHeroes();
+        $items = $store;
         
         $downloadedFiles = array();
         
@@ -148,22 +148,16 @@ class Dota2_API
         return $downloadedFiles;
     }
     
+    public function downloadHeroesImages($pathSafe = 'images/heroes/')
+    {
+        $store = $this->getHeroes();
+        return $this->downloadMedias($store, $pathSafe);
+    }
+    
     public function downloadItemsImages($pathSafe = 'images/items/')
     {
-        if(!file_exists($pathSafe))
-            mkdir($pathSafe, 0777, true);
-        
-        $items = $this->getItems();
-        
-        $downloadedFiles = array();
-        
-        foreach($items as $item)
-        {
-            $pathInfo = pathinfo($item->image);
-            $downloadedFiles[$item->image] = $this->download($item->image, $pathSafe . $pathInfo['basename']);
-        }
-        
-        return $downloadedFiles;
+        $store = $this->getItems();
+        return $this->downloadMedias($store, $pathSafe);
     }
 }
 
