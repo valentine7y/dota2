@@ -6,6 +6,8 @@ class Dota2_API
     
     const HEROES_NAME_PREFIX = 'npc_dota_hero_';
     
+    const STEAM_ID_UPPER_32_BITS = '00000001000100000000000000000001';
+    
     /**
      * DO NOT FORGET TO CHANGE THESE PATH ACCORDING TO YOUR ENVIRONMENT 
      */
@@ -14,6 +16,12 @@ class Dota2_API
     
     const API_URL_HEROES = 'https://api.steampowered.com/IEconDOTA2_570/GetHeroes/v0001/';
     const API_URL_HEROES_DATA = 'http://www.dota2.com/jsfeed/heropickerdata?v=170666872723459802&l=portuguese';
+    
+    const API_URL_MATCH_DETAILS = 'https://api.steampowered.com/IDOTA2Match_570/GetMatchDetails/V001/';
+    
+    const API_URL_PLAYER_SUMMARIES = 'https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/';
+    
+    const API_URL_MATCH_HISTORY = 'https://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/V001/';
     
     /**
      * CONVENTION OF THE URLS OF THE IMAGES ON THE SITE DOTA2.COM 
@@ -28,14 +36,12 @@ class Dota2_API
     
     public static function dump($a, $exit = true)
     {
-        $style = array(
+        $style = implode(';', array(
             'color' => '#FFF',
             'padding' => '25px',   
             'background-color' => '#333',   
             'boder' => '1px dashed #FFF000'
-        );
-        
-        $style = implode(';', $style);
+        ));
         
         echo '<pre style="'. $style .'">';
         print_r($a);
@@ -45,14 +51,43 @@ class Dota2_API
             exit;
     }
     
+    // gets the lower 32-bits of a 64-bit steam id
+    public function to32b($id) 
+    {
+        $upper = gmp_mul(bindec(self::STEAM_ID_UPPER_32_BITS), "4294967296");
+        return gmp_strval(gmp_sub($id, $upper));
+    }
+
+    // creates a 64-bit steam id from the lower 32-bits
+    public function to64b($id, $hi = false) 
+    {
+        if($hi === false) 
+            $hi = bindec(self::STEAM_ID_UPPER_32_BITS);
+
+        // workaround signed/unsigned braindamage on x32
+        $hi = sprintf("%u", $hi);
+        $id = sprintf("%u", $id);
+
+        return gmp_strval(gmp_add(gmp_mul($hi, "4294967296"), $id));      
+    } 
+    
     public function getJson($url)
     {
-        $obj = json_decode(file_get_contents($url));
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_REFERER, $_SERVER['REQUEST_URI']);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+
+        $result = curl_exec($ch) or die(curl_error($ch));
+        curl_close($ch);
         
-        if(!($obj instanceof stdClass))
+        $json = json_decode($result);
+        
+        if(!($json instanceof stdClass))
             throw new Exception_Dota2_API('not is Object');
         
-        return $obj;
+        return $json;
     }
     
     public function download($url, $pathSafe)
@@ -128,6 +163,47 @@ class Dota2_API
         }
         
         return $id ? $items[0] : $items;
+    }
+    
+    public function getMatch($id)
+    {
+        $url = self::API_URL_MATCH_DETAILS .'?key='. $this->_apiKey . '&match_id='. $id;
+        $json = $this->getJson($url);
+        
+        if(!isset($json->result))
+            throw new Exception_Dota2_API('not found match');
+        
+        return $json->result;
+    }
+    
+    public function getMatchHistory($id)
+    {
+        $url = self::API_URL_MATCH_HISTORY .'?key='. $this->_apiKey . '&account_id='. $id;
+        $json = $this->getJson($url);
+        
+        var_dump(count($json->result->matches));
+        exit;
+        
+        return $json;
+        
+        if(!isset($json->result))
+            throw new Exception_Dota2_API('not found match');
+        
+        return $json->result;
+    }
+    
+    public function getPlayer($id, $to64b = true)
+    {
+        if($to64b)
+            $id = $this->to64b($id);
+        
+        $url = self::API_URL_PLAYER_SUMMARIES .'?key='. $this->_apiKey . '&steamids='. $id;
+        $json = $this->getJson($url);
+        
+        if(empty($json->response->players))
+            throw new Exception_Dota2_API('not found player');
+        
+        return $json->response->players[0];
     }
     
     protected function downloadMedias($store, $pathSafe)
